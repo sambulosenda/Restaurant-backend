@@ -4,9 +4,15 @@ import {join} from 'path'
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, 
+      envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.test", 
+      ignoreEnvFile: process.env.NODE_ENV === "prod"
+    }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
@@ -15,11 +21,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     RestaurantsModule, 
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'sambulosenda',
-      password: '12345',
-      database: 'Restaurant',
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSPORT,
+      database: process.env.DB_NAME,
       synchronize: true,
       logging: true,
 
