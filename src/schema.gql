@@ -12,6 +12,7 @@ type Query {
 
 type Restaurant {
   address: String!
+  catagoryName: String!
   isGood: Boolean
   name: String!
   ownerName: String!
