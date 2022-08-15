@@ -7,6 +7,8 @@ import * as Joi from 'joi';
 import { join } from 'path';
 import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { User } from './users/entities/user.entity';
+import { UsersModule } from './users/users.module';
 
 console.log(Joi);
 @Module({
@@ -29,7 +31,7 @@ console.log(Joi);
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
     }),
-    RestaurantsModule,
+    UsersModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -38,9 +40,10 @@ console.log(Joi);
       password: process.env.DB_PASSPORT,
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
-      logging: true,
-      entities: [Restaurant]
+      logging: process.env.NODE_ENV !== 'prod',
+      entities: [User],
     }),
+    UsersModule,
   ],
   controllers: [],
   providers: [],
