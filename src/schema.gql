@@ -7,8 +7,20 @@ type CreateAccountOutput {
   ok: Boolean!
 }
 
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginOutput {
+  error: String
+  ok: Boolean!
+  token: String
+}
+
 type Mutation {
   createAccount(input: createAccountInput!): CreateAccountOutput!
+  login(input: LoginInput!): LoginOutput!
 }
 
 type Query {
