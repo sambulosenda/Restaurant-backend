@@ -9,6 +9,7 @@ import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { JwtModule } from './jwt/jwt.module';
 
 console.log(Joi);
 @Module({
@@ -24,6 +25,7 @@ console.log(Joi);
         DB_USERNAME: Joi.string().required(),
         DB_PASSPORT: Joi.string().required(),
         DB_NAME: Joi.string().required(),
+        SECRET_KEY: Joi.string().required(),
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -44,6 +46,8 @@ console.log(Joi);
       entities: [User],
     }),
     UsersModule,
+    JwtModule.forRoot(),
+
   ],
   controllers: [],
   providers: [],
