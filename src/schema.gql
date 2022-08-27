@@ -37,6 +37,7 @@ type Mutation {
   createAccount(input: createAccountInput!): CreateAccountOutput!
   editProfile(input: EditProfileInput!): EditProfileOutput!
   login(input: LoginInput!): LoginOutput!
+  verifyEmail(input: VerifyEmailInput!): VerifyEmailOutput!
 }
 
 type Query {
@@ -52,6 +53,7 @@ type User {
   password: String!
   role: UserRole!
   updatedAT: DateTime!
+  verified: Boolean!
 }
 
 type UserProfileOutput {
@@ -64,6 +66,15 @@ enum UserRole {
   Client
   Delivery
   Owner
+}
+
+input VerifyEmailInput {
+  code: String!
+}
+
+type VerifyEmailOutput {
+  error: String
+  ok: Boolean!
 }
 
 input createAccountInput {
