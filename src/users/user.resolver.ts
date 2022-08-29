@@ -27,7 +27,7 @@ export class UserResolver {
     @Args('input') createAccountInput: createAccountInput,
   ): Promise<CreateAccountOutput> {
     try {
-      const [ok, error] = await this.usersService.createAccount(
+      const {ok, error} = await this.usersService.createAccount(
         createAccountInput,
       );
       return {
@@ -88,6 +88,7 @@ export class UserResolver {
   async editProfile(
     @AuthUser() authUser: User,
     @Args('input') editProfileInput: EditProfileInput,
+ 
   ): Promise<EditProfileOutput> {
     try {
       await this.usersService.editProfile(authUser.id, editProfileInput);

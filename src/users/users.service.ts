@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from 'src/jwt/jwt.service';
+import { MailService } from 'src/mail/mail.service';
 import { Repository } from 'typeorm';
-import { createAccountInput } from './dtos/create-account.dto';
+import { createAccountInput, CreateAccountOutput } from './dtos/create-account.dto';
 import { EditProfileInput } from './dtos/edit-profile.dto';
 import { LoginInput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
@@ -15,28 +16,40 @@ export class UserService {
     @InjectRepository(Verification)
     private readonly verifications: Repository<Verification>,
     private readonly jtwService: JwtService,
+    private readonly mailService: MailService,
   ) {}
   async createAccount({
     email,
     password,
     role,
-  }: createAccountInput): Promise<[boolean, string?, string?]> {
+  }: createAccountInput): Promise<CreateAccountOutput> {
     try {
       const exits = await this.users.findOne({ where: { email } });
       if (exits) {
-        return [false, 'There is a user with that email'];
+        return {
+          ok: false,
+          error: 'There is a user with that email',
+        };
       }
       const user = await this.users.save(
         this.users.create({ email, password, role }),
       );
-      await this.verifications.save(
+      const verification = await this.verifications.save(
         this.verifications.create({
           user,
         }),
       );
-      return [true];
+      this.mailService.sendVerificationEmail(user.email, verification.code);
+      console.log(user);
+
+      return {
+        ok: true,
+      };
     } catch (e) {
-      return [false, 'Could not react an account'];
+      return {
+        ok: false,
+        error: 'Could not react an account',
+      };
     }
   }
 
@@ -46,7 +59,10 @@ export class UserService {
   }: LoginInput): Promise<{ ok: boolean; error?: string; token?: string }> {
     //Find the user with the email
     try {
-      const user = await this.users.findOne({ where: { email }, select: ['id','password'] });
+      const user = await this.users.findOne({
+        where: { email },
+        select: ['id', 'password'],
+      });
       if (!user) {
         return {
           ok: false,
@@ -80,34 +96,46 @@ export class UserService {
   }
 
   async editProfile(id: number, { email, password }: EditProfileInput) {
-    const user = await this.users.findOne({ where: { id } });
-    if (email) {
-      user.email = email;
-      user.verified = false;
-      await this.verifications.save(this.verifications.create({ user }));
+    try {
+      const user = await this.users.findOne({ where: { id } });
+      if (email) {
+        user.email = email;
+        user.verified = false;
+        await this.verifications.delete({ user: { id: user.id } });
+
+        const verification = await this.verifications.save(
+          this.verifications.create({ user }),
+        );
+        this.mailService.sendVerificationEmail(user.email, verification.code);
+      }
+      if (password) {
+        user.password = password;
+      }
+      await this.users.save(user);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return { ok: false, error: 'Could not update profile.' };
     }
-    if (password) {
-      user.password = password;
-    }
-    return this.users.save(user);
   }
 
   async verifyEmail(code: string): Promise<boolean> {
-   try {
-    const verification = await this.verifications.findOne({
-      where: { code },
-      relations: ['user'],
-    });
-    if (verification) {
-      verification.user.verified = true;
-      await this.users.save(verification.user);
-      await this.verifications.delete(verification.id)
-      return true 
+    try {
+      const verification = await this.verifications.findOne({
+        where: { code },
+        relations: ['user'],
+      });
+      if (verification) {
+        verification.user.verified = true;
+        await this.users.save(verification.user);
+        await this.verifications.delete(verification.id);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
-    return false;
-   } catch (error) {
-     console.log(error)
-     return false
-   }
   }
 }

@@ -7,7 +7,7 @@ export class AuthGuard implements CanActivate  {
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
         const gqlContext = GqlExecutionContext.create(context).getContext()
         const user = gqlContext['user']
-        console.log(user)
+        console.log("hello"+ user)
         if(!user) {
             return false
         }
