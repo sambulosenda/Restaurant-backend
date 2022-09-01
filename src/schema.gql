@@ -2,7 +2,29 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Category {
+  coverImg: String
+  createdAt: DateTime!
+  id: Float!
+  name: String!
+  restaurants: [Restaurant!]!
+  slug: String!
+  updatedAT: DateTime!
+}
+
 type CreateAccountOutput {
+  error: String
+  ok: Boolean!
+}
+
+input CreateRestaurantInput {
+  address: String!
+  categoryName: String!
+  coverImage: String!
+  name: String!
+}
+
+type CreateRestaurantOutput {
   error: String
   ok: Boolean!
 }
@@ -22,6 +44,19 @@ type EditProfileOutput {
   ok: Boolean!
 }
 
+input EditRestaurantInput {
+  address: String
+  categoryName: String
+  coverImage: String
+  name: String
+  restaurantId: Float!
+}
+
+type EditRestaurantOutput {
+  error: String
+  ok: Boolean!
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -35,7 +70,9 @@ type LoginOutput {
 
 type Mutation {
   createAccount(input: createAccountInput!): CreateAccountOutput!
+  createRestaurant(input: CreateRestaurantInput!): CreateRestaurantOutput!
   editProfile(input: EditProfileInput!): EditProfileOutput!
+  editRestaurant(input: EditRestaurantInput!): EditRestaurantOutput!
   login(input: LoginInput!): LoginOutput!
   verifyEmail(input: VerifyEmailInput!): VerifyEmailOutput!
 }
@@ -46,11 +83,23 @@ type Query {
   userProfile(userId: Float!): UserProfileOutput!
 }
 
+type Restaurant {
+  address: String!
+  category: Category
+  coverImage: String!
+  createdAt: DateTime!
+  id: Float!
+  name: String!
+  owner: User!
+  updatedAT: DateTime!
+}
+
 type User {
   createdAt: DateTime!
   email: String!
   id: Float!
   password: String!
+  restaurants: [Restaurant!]!
   role: UserRole!
   updatedAT: DateTime!
   verified: Boolean!

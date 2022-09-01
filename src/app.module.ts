@@ -17,6 +17,9 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
+import { Restaurant } from './restaurants/entities/restaurant.entity';
+import { Category } from './restaurants/entities/catagory.entity';
+import { RestaurantsModule } from './restaurants/restaurants.module';
 
 console.log(Joi);
 @Module({
@@ -45,6 +48,8 @@ console.log(Joi);
       context: ({req}) => ({user: req['user']})
     }),
     UsersModule,
+    RestaurantsModule,
+    AuthModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -54,7 +59,7 @@ console.log(Joi);
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [User, Verification],
+      entities: [User, Verification, Restaurant, Category],
     }),
     UsersModule,
     JwtModule.forRoot({
